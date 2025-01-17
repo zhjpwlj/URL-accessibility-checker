@@ -8,19 +8,14 @@
             margin: 20px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
         input[type="text"] {
             width: 300px;
-            padding: 5px;
+            padding: 10px;
             margin-bottom: 10px;
         }
 
         button {
-            padding: 8px 15px;
+            padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -29,8 +24,14 @@
 
         #result {
             margin-top: 20px;
-            border: 1px solid #ccc;
-            padding: 10px;
+        }
+
+        .accessible {
+            color: green;
+        }
+
+        .inaccessible {
+            color: red;
         }
     </style>
 </head>
@@ -38,47 +39,41 @@
 
     <h1>URL Accessibility Checker</h1>
 
-    <label for="url">Enter URL:</label>
-    <input type="text" id="url" placeholder="e.g., https://www.example.com">
-
-    <button onclick="checkAccessibility()">Check Accessibility</button>
+    <input type="text" id="urlInput" placeholder="Enter URL">
+    <button onclick="checkAccessibility()">Check</button>
 
     <div id="result"></div>
 
     <script>
         function checkAccessibility() {
-            const url = document.getElementById('url').value;
-            const resultDiv = document.getElementById('result');
+            var urlInput = document.getElementById("urlInput");
+            var url = urlInput.value;
+            var resultDiv = document.getElementById("result");
 
-            // Clear previous results
-            resultDiv.innerHTML = '';
+            // Create a new XMLHttpRequest object
+            var xhr = new XMLHttpRequest();
 
-            // Perform basic checks (replace with more comprehensive logic)
-            if (!url) {
-                resultDiv.innerHTML = '<p>Please enter a URL.</p>';
-                return;
-            }
-
-            // Check if the URL is valid (basic validation)
-            try {
-                new URL(url);
-            } catch (error) {
-                resultDiv.innerHTML = `<p>Invalid URL: ${error.message}</p>`;
-                return;
-            }
-
-            // Simulate a network request (replace with actual network check)
-            fetch(url)
-                .then(response => {
-                    if (response.ok) {
-                        resultDiv.innerHTML = `<p>URL is accessible.</p>`;
+            // Define the callback function to handle the response
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        resultDiv.innerHTML = '<p class="accessible">URL is accessible.</p>';
                     } else {
-                        resultDiv.innerHTML = `<p>URL is not accessible: ${response.status} ${response.statusText}</p>`;
+                        resultDiv.innerHTML = '<p class="inaccessible">URL is inaccessible (HTTP status: ' + xhr.status + ').</p>';
                     }
-                })
-                .catch(error => {
-                    resultDiv.innerHTML = `<p>Error accessing URL: ${error.message}</p>`;
-                });
+                }
+            };
+
+            // Open the URL with a GET request
+            xhr.open("GET", url, true);
+
+            // Set a timeout to simulate a page load
+            setTimeout(function() {
+                xhr.send(); 
+            }, 10000); // 10 seconds timeout
+
+            // Display a loading message while waiting
+            resultDiv.innerHTML = '<p>Checking accessibility... Please wait.</p>';
         }
     </script>
 
