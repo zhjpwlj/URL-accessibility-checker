@@ -48,32 +48,26 @@
         function checkAccessibility() {
             var urlInput = document.getElementById("urlInput");
             var url = urlInput.value;
-            var resultDiv = document.getElementById("result");
 
-            // Create a new XMLHttpRequest object
-            var xhr = new XMLHttpRequest();
+            // Create a new window for the URL
+            var win = window.open(url, '_blank');
 
-            // Define the callback function to handle the response
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        resultDiv.innerHTML = '<p class="accessible">URL is accessible.</p>';
-                    } else {
-                        resultDiv.innerHTML = '<p class="inaccessible">URL is inaccessible (HTTP status: ' + xhr.status + ').</p>';
-                    }
-                }
-            };
-
-            // Open the URL with a GET request
-            xhr.open("GET", url, true);
-
-            // Set a timeout to simulate a page load
+            // Set a timeout to check if the window loaded
             setTimeout(function() {
-                xhr.send(); 
+                if (win.closed) {
+                    // Window closed before timeout, likely inaccessible
+                    displayResult("inaccessible", "URL is inaccessible. Window closed before loading.");
+                } else {
+                    // Window still open, likely accessible
+                    displayResult("accessible", "URL is accessible.");
+                }
+                win.close(); // Close the window after checking
             }, 10000); // 10 seconds timeout
+        }
 
-            // Display a loading message while waiting
-            resultDiv.innerHTML = '<p>Checking accessibility... Please wait.</p>';
+        function displayResult(status, message) {
+            var resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = '<p class="' + status + '">' + message + '</p>';
         }
     </script>
 
